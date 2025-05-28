@@ -34,6 +34,7 @@
         </ul>
       </div>
 
+
       <!-- Clients Section -->
       <div id="clients-content">
         <div class="section-header">
@@ -43,8 +44,9 @@
           </button>
         </div>
 
+        <!-- Client Form -->
         <div id="client-form" class="form-box hidden">
-          <form action="process_client.php" method="POST">
+          <form action="guardarCliente.php" method="POST">
             <div class="form-group">
               <label>Nombre</label>
               <input type="text" name="name" required />
@@ -56,10 +58,6 @@
             <div class="form-group">
               <label>Teléfono</label>
               <input type="tel" name="phone" />
-            </div>
-            <div class="form-group">
-              <label>Dirección</label>
-              <input type="text" name="address" />
             </div>
             <div class="form-actions">
               <button type="button" id="cancel-client" class="btn-secondary">Cancelar</button>
@@ -106,23 +104,157 @@
         </div>
       </div>
 
+      <!-- Providers Section -->
       <div id="providers-content" class="hidden">
         <div class="section-header">
           <h2>Gestión de Proveedores</h2>
-          <button class="btn-primary"><i class="fas fa-plus"></i> Nuevo Proveedor</button>
+          <button class="btn-primary">
+            <i class="fas fa-plus"></i> Nuevo Proveedor
+          </button>
         </div>
+
+        <!-- Proveedor Form -->
+        <div id="prove-form" class="form-box hidden">
+          <form action="guardarProveedor.php" method="POST">
+            <div class="form-group">
+              <label>Nombre</label>
+              <input type="text" name="name" required />
+            </div>
+            <div class="form-group">
+              <label>Ruc</label>
+              <input type="text" name="ruc" required />
+            </div>
+            <div class="form-actions">
+              <button type="button" id="cancel-prove" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- proveedor Table -->
         <div class="card">
-          <p>Contenido de proveedores se cargará aquí.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>RUC</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              try {
+                $stmt = $conn->query("SELECT * FROM proveedores ORDER BY id_proveedor DESC");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                  echo "<tr>";
+                  echo "<td>".htmlspecialchars($row['id_proveedor'])."</td>";
+                  echo "<td>".htmlspecialchars($row['nombre'])."</td>";
+                  echo "<td>".htmlspecialchars($row['ruc'] ?? '')."</td>";
+                  echo "<td class='actions'>
+                          <button class='edit'><i class='fas fa-edit'></i></button>
+                          <button class='delete'><i class='fas fa-trash'></i></button>
+                        </td>";
+                  echo "</tr>";
+                }
+              } catch(PDOException $e) {
+                echo "<tr><td colspan='5'>Error al cargar los clientes: ".$e->getMessage()."</td></tr>";
+              }
+              ?>
+            </tbody>
+          </table>
         </div>
       </div>
 
+      <!-- Sales Section -->
       <div id="sales-content" class="hidden">
         <div class="section-header">
-          <h2>Gestión de Ventas</h2>
-          <button class="btn-primary"><i class="fas fa-plus"></i> Nueva Venta</button>
+          <h2>Gestión de Todas las Ventas</h2>
+          <button class="btn-primary">
+            <i class="fas fa-plus"></i> Nueva Venta
+          </button>
         </div>
+
+        <!-- Venta Form -->
+        <div id="venta-form" class="form-box hidden">
+          <form action="guardarVenta.php" method="POST">
+            <div class="form-group">
+              <label>Proveedor</label>
+              <select type="text" name="cbxProve" required>
+                <option>Seleccione un proveedor</option>
+                <?php
+                try {
+                  $stmt = $conn->query("SELECT * FROM proveedores ORDER BY id_proveedor DESC");
+                  while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<option value='".htmlspecialchars($row['id_proveedor'])."'>".htmlspecialchars($row['nombre'])."</option>";
+                  }
+                } catch(PDOException $e) {
+                  echo "<option value=''>Error al cargar proveedores: ".$e->getMessage()."</option>";
+                }
+                ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Cliente</label>
+              <select type="text" name="cbxCliente" required>
+                <option>Seleccione un cliente</option>
+                <?php
+                try {
+                  $stmt = $conn->query("SELECT * FROM clientes ORDER BY id_cliente DESC");
+                  while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    echo "<option value='".htmlspecialchars($row['id_cliente'])."'>".htmlspecialchars($row['nombre'])."</option>";
+                  }
+                } catch(PDOException $e) {
+                  echo "<option value=''>Error al cargar clientes: ".$e->getMessage()."</option>";
+                }
+                ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Descripcion</label>
+              <input type="text" name="des" required />
+            </div>
+            <div class="form-actions">
+              <button type="button" id="cancel-venta" class="btn-secondary">Cancelar</button>
+              <button type="submit" class="btn-primary">Guardar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Ventas Table -->
         <div class="card">
-          <p>Contenido de ventas se cargará aquí.</p>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Provedor</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php
+              try {
+                $stmt = $conn->query("SELECT * FROM ventas ORDER BY id_venta DESC");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                  echo "<tr>";
+                  echo "<td>".htmlspecialchars($row['id_venta'])."</td>";
+                  echo "<td>".htmlspecialchars($row['id_proveedor'])."</td>";
+                  echo "<td>".htmlspecialchars($row['id_cliente'])."</td>";
+                  echo "<td>".htmlspecialchars($row['fecha'] ?? '')."</td>";
+                  echo "<td>".htmlspecialchars($row['descripcion'])."</td>";
+                  echo "<td class='actions'>
+                          <button class='edit'><i class='fas fa-edit'></i></button>
+                          <button class='delete'><i class='fas fa-trash'></i></button>
+                        </td>";
+                  echo "</tr>";
+                }
+              } catch(PDOException $e) {
+                echo "<tr><td colspan='5'>Error al cargar los clientes: ".$e->getMessage()."</td></tr>";
+              }
+              ?>
+            </tbody>
+          </table>
         </div>
       </div>
     </main>
@@ -133,38 +265,6 @@
     </footer>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const tabs = {
-        'clients-tab': 'clients-content',
-        'providers-tab': 'providers-content',
-        'sales-tab': 'sales-content'
-      };
-
-      function setActiveTab(activeTabId) {
-        for (let tabId in tabs) {
-          const tabBtn = document.getElementById(tabId);
-          const content = document.getElementById(tabs[tabId]);
-          tabBtn.classList.remove('active-tab');
-          content.classList.add('hidden');
-        }
-        document.getElementById(activeTabId).classList.add('active-tab');
-        document.getElementById(tabs[activeTabId]).classList.remove('hidden');
-      }
-
-      for (let tabId in tabs) {
-        document.getElementById(tabId).addEventListener('click', () => setActiveTab(tabId));
-      }
-
-      const newClientBtn = document.querySelector('#clients-content button');
-      const clientForm = document.getElementById('client-form');
-      const cancelClient = document.getElementById('cancel-client');
-
-      if (newClientBtn && clientForm && cancelClient) {
-        newClientBtn.addEventListener('click', () => clientForm.classList.remove('hidden'));
-        cancelClient.addEventListener('click', () => clientForm.classList.add('hidden'));
-      }
-    });
-  </script>
+  <script src="crip.js"></script>
 </body>
 </html>
